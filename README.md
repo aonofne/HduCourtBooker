@@ -9,12 +9,6 @@
 
 ---
 
-## 〇、选哪个版本
-
-| 目录 | 体积 | 需要 .NET | 说明 |
-| --- | --- | --- | --- |
-| **`publish-lite\`** | **约 0.3 MB** | 需要 .NET 8 桌面运行时 | **推荐**。体积小、启动快、不易被安全软件误拦 |
-| `publish\` | 约 63 MB | 不需要 | 自包含单文件，拷到任何 Windows 机器都能跑，但大且有时被拦 |
 
 两个版本**共用同一份数据**（`%LOCALAPPDATA%\HduCourtBooker\`），配置与日志互通，随便换着用。
 
@@ -30,7 +24,6 @@ dotnet --list-runtimes | Select-String WindowsDesktop
 ## 一、快速开始
 
 1. 双击 `publish-lite\HduCourtBooker.exe`
-   （若双击没反应，改用同目录的 **`启动.bat`**，它会保留窗口显示返回码与排查路径）
 2. 点「★ 从钉钉自动获取」→ 自动填入 token 与 openid，并**自动开启每日自动预约**
 3. 确认状态栏显示 **● 自动预约已启用（下次 …）**
 4. 点「刷新场地图」确认能读到 12 片场地与可约时段（白色=可约，红色=已被约，灰色=未开放）
@@ -54,12 +47,6 @@ dotnet --list-runtimes | Select-String WindowsDesktop
 
 软件会读取钉钉本地存储里的登录凭据，自动填入 token / openid，并调用只读接口
 `post_client/post_order_info` 校验归属（会显示你的历史订单条数，可确认是自己的账号）。
-
-命令行方式（可选）：
-
-```powershell
-publish\HduCourtBooker.SelfTest.exe --extract-credentials
-```
 
 ### 手动获取（备用）
 
@@ -86,17 +73,7 @@ publish\HduCourtBooker.SelfTest.exe --extract-credentials
 - 换机器、重装软件但想沿用旧 token 时，直接改这个字段即可。
 - 另外 `data\logs\exchange-*.log` 记录每次请求的鉴权头（token 已脱敏，只能用于排查）。
 
-#### ③ 电脑浏览器（仅当曾在浏览器里登录成功过）
-
-```
-Edge  : %LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Local Storage\leveldb\
-Chrome: %LOCALAPPDATA%\Google\Chrome\User Data\Default\Local Storage\leveldb\
-```
-
-或在浏览器里 `F12` → Application → Local Storage → `https://sportmeta.hdu.edu.cn` → 复制 `token`。
-注意：该站点在浏览器里通常登不进去，这条路只在极少数情况下可用。
-
-#### ④ 抓包（能拿到请求头即可）
+#### ③ 抓包（能拿到请求头即可）
 
 用 Fiddler / Reqable 等工具让钉钉走代理，在任意 `/book/client/` 请求的请求头里找：
 
@@ -106,7 +83,7 @@ Authorization: Bearer eyJhbGciOi...
 
 `Bearer` 后面那一串（到行尾）就是 token。手机端同理：手机 WiFi 设置 HTTP 代理指向电脑并安装证书。
 
-#### ⑤ 从日志里捞
+#### ④ 从日志里捞
 
 在钉钉日志目录里搜 `eyJ`：`%APPDATA%\DingTalk\log\`、`%LOCALAPPDATA%\DingTalk_133\Default\Cache\`。
 找到多条时，**用 `exp` 字段最大（最晚过期）的那条**。
@@ -124,15 +101,6 @@ Authorization: Bearer eyJhbGciOi...
 > **抢约当天务必在 20:00 之前刷新一次 token**；否则软件会在日志里直接提示
 > "token 已过期"，而不是白白等到 20:00 才发现。
 
-### 存储方式
-
-token 以**明文**保存在 `data\config.json` 的 `TokenProtected` 字段，便于查看、备份与手工替换
-（按用户要求取消了 DPAPI 加密）。配置文件里若残留早期版本的 `dpapi:` 密文，
-软件会提示重新获取一次，保存后即变为明文。
-
-⚠️ 明文意味着：**不要把 `data\config.json` 发给别人或上传到公开仓库**，
-它等同于你的登录凭据。
-
 ## 三、抢约机制
 
 | 环节 | 做法 |
@@ -142,7 +110,7 @@ token 以**明文**保存在 `data\config.json` 的 `TokenProtected` 字段，�
 | 保活连接 | 预热阶段先建 TLS 长连接并拉取时间表，避免握手落在关键路径 |
 | 触发精度 | 最后一小段用自旋等待，判据用 `Stopwatch` 高精度时间源，误差通常 < 5 ms |
 | 冲突重试 | 被抢时按 `重试间隔ms` 重试，最多 `最大尝试` 次；每轮都重新拉最新可约时段 |
-| 被限流退避 | 收到 HTTP 403 时按 200→400→800→1600→3000 ms 指数退避，不再猛冲 |
+| 被限流退避 | 收到 HTTP 403 时按 200→400→800→1600→3000 ms 指数退避，不猛冲 |
 | 兜底 | 偏好时段抢不到时，退化为该场地任意可用时段，保证成功率 |
 | 成功后 | 可选自动调用 `creat_order` 建单 |
 
@@ -156,24 +124,6 @@ token 以**明文**保存在 `data\config.json` 的 `TokenProtected` 字段，�
    2 秒内超过 40 个请求会写警告日志。
 
 > 状态栏会显著显示 **● 自动预约已启用（下次 …）** 或 **○ 自动预约未启用**，跑之前先看这一行。
-
-## 事故复盘：2026-10-09 20:00 抢约失败
-
-**现象**：25 个"▶ 触发预约"在同一毫秒打出，716 次 `creat_book_info` 全部返回 403/400，一单未成。
-
-**根因**（三条叠加）：
-
-1. **调度循环被重复创建**：`DailyScheduler.Start()` 在 12:28、16:44、17:14、17:15 被多次触发
-   （17:15:19 一秒内就出现 8 个"时钟校准"），最终累积 25 条循环，全部在 19:59:59.756 同时开抢。
-   每条循环自带 5 次时钟校准 + 最多 15 次重试 → 瞬间几百个请求 → 服务器判定异常流量返回 403。
-2. **自旋等待死循环**：`WaitUntilAsync` 原来用 `DateTime.Now`（精度约 15.6ms）做判据，
-   最后一刻 `remain` 永远算不出 ≤0，于是持续自旋把 CPU 打满，进一步拖垮了在途请求。
-3. **无并发闸门**：客户端没有任何串行/限速措施，上层重复调用就等量放大成请求风暴。
-
-**修复**：见上一节三条护栏 + `Timing.WaitUntilAsync` 改用 `Stopwatch`；
-并新增 52 项单元测试（含"等待不得死循环"）与 31 项集成测试
-（含"并发 20 次只有 1 次执行"、"重复 Start 25 次只产生一条循环"）锁住这些行为。
-原始日志已归档到 `logs-incident-20261009\`。
 
 ## 四、配置项（`data\config.json`）
 
@@ -211,73 +161,3 @@ token 以**明文**保存在 `data\config.json` 的 `TokenProtected` 字段，�
 | **每单时长上限** | **最多 2 小时**（所以 `MaxSlotsPerBooking` 默认 2；填更大只会被截断） |
 | 可提前预约 | 最多约到后天（T+0 ~ T+2），每天 **20:00 放出后天** |
 | 周日注意 | 周日只开放到 17:00，晚上时段不存在，需相应调整偏好 |
-
-## 五、自检与排错
-
-`publish\HduCourtBooker.SelfTest.exe` 会打印各接口的真实返回：
-
-```text
-[1] 服务器时间与时钟校准     [2] 场地列表 choose_venue
-[3] 时间表 post_venue_info   [4] 场地图 post_site_situation
-[5] 抢约规划                [6] token 校验（需 --token）
-```
-
-带 token 校验：`HduCourtBooker.SelfTest.exe --token <你的token> --openid <你的openid>`
-
-一键运行并保存输出：`powershell -ExecutionPolicy Bypass -File hdu-booking\verify.ps1`
-
-日志位于 `data\logs\booker-yyyyMMdd.log`，界面里点「打开日志」可直接查看。
-自检第 1 步就会打印时钟偏移；若偏移达到秒级说明本机时钟不准，但软件会自动补偿
-（实测样例：偏移 +2221 ms、往返 4 ms）。
-
-**常见问题**
-
-| 现象 | 处理 |
-| --- | --- |
-| 自检开头即 `无法连接场馆服务器` | 确认在校园网或 VPN 内；检查系统时间是否准确 |
-| 大量 `HTTP 403` | 被服务器限流。确认没有同时开多个软件实例/多次点「立即抢约」；新版已自动指数退避 |
-| `未登录或 token 失效` | token 过期，重新获取 |
-| 状态栏显示 `○ 自动预约未启用` | 勾选「启用每日自动预约」并保存；否则 20:00 不会自动抢 |
-| 刷新场地图为空 | 场地名需与 `choose_venue` 返回一致（默认「综合馆羽毛球」） |
-| 目标日期全空 | 该馆当天 20:00 才放出后天，更远的日期尚未开放；用自检的第 [6] 段可看清 |
-| 抢不到 | 提前 `LeadMilliseconds`（如 300~400 ms）、增加 `MaxAttempts`、扩大场地/时段偏好 |
-
-## 六、测试与验证
-
-```powershell
-powershell -ExecutionPolicy Bypass -File hdu-booking\build.ps1   # 测试 + 发布
-```
-
-| 层次 | 位置 | 覆盖内容 |
-| --- | --- | --- |
-| 离线单元测试（30 项） | `src\HduCourtBooker.Tests` | 选场规划、场地/时段优先级、退化策略、日期与触发时刻计算、请求体 JSON 字段、响应解析 |
-| 端到端集成测试（20 项） | `src\HduCourtBooker.IntegrationTest` | 起本地仿真服务端，用真实 HTTP 往返验证：时钟校准、完整抢约与建单、冲突重试、**触发精度**、401 处理 |
-| 联网自检 | `src\HduCourtBooker.SelfTest` | 对真实站点逐接口校验契约、预约窗口（T+3 应未开放）、`--token` 鉴权校验 |
-
-触发精度实测：目标 `21:30:56.434` → 实际首次提交 `21:30:56.438`，**偏差 4 ms**。
-
-> 关键回归：`TimeSpan.TryParse("21:11:43.443")` 会把 `21:` 解析成 **21 天**，导致触发时刻静默错位。
-> 现已改为 `TryParseExact` 严格解析（`Core\ScheduleMath.cs`），并有专门单元测试守住。
-
-## 七、目录结构
-
-```
-hdu-booking/
-├─ build.ps1                  # 一键构建 + 测试 + 发布
-├─ verify.ps1                 # 本机联网自检
-├─ publish/                   # 交付产物：主程序 + 自检工具
-├─ src/
-│  ├─ HduCourtBooker/         # WinForms 主程序
-│  │  ├─ Api/                 # 接口模型 + HTTP 客户端
-│  │  ├─ Core/                # 配置、日志、时间同步、选场规划、抢约调度、每日调度
-│  │  └─ MainForm*.cs         # 界面
-│  ├─ HduCourtBooker.SelfTest/        # 联网自检（真实接口）
-│  ├─ HduCourtBooker.Tests/           # 离线单元测试
-│  └─ HduCourtBooker.IntegrationTest/ # 端到端集成测试（本地仿真服务端）
-└─ docs/API.md                # 接口契约与逆向记录
-```
-
-## 八、合规提示
-
-本工具仅用于个人自用，减少手动抢场的重复操作。自动化访问第三方系统可能与场馆/学校的使用规定冲突，
-请自行确认并承担相应后果；请勿用于批量占场、代抢等用途。程序已内置重试间隔，请勿改到极高频率以免给服务器造成压力。
