@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>HduCourtBooker.IntegrationTest</AssemblyName>
+    <RootNamespace>HduCourtBooker.IntegrationTest</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="..\HduCourtBooker\Api\*.cs" />
+    <Compile Include="..\HduCourtBooker\Core\*.cs" />
+    <!-- 每日调度器：需要单独测"重复 Start 不得产生多条循环" -->
+    <Compile Include="..\HduCourtBooker\DailyScheduler.cs" />
+  </ItemGroup>
+
+</Project>

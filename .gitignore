@@ -1,0 +1,35 @@
+# ===== 绝对不能提交：登录凭据与运行时数据 =====
+# config.json 里的 TokenProtected 是明文 token（等同账号凭据）
+data/
+**/data/
+publish-lite/data/
+publish/data/
+
+# 崩溃报告（可能含路径与配置片段）
+crash-*.log
+**/crash-*.log
+
+# 现场抓包与逆向分析产物（含真实 token，且体积大）
+recon/
+*.nupkg
+
+# 本地临时目录
+tools/tmp/
+_st/
+publish-selftest/
+
+# ===== 构建中间产物 =====
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+
+# ===== 日志 =====
+*.log
+!build.log
+
+# ===== 系统杂项 =====
+Thumbs.db
+desktop.ini
+.DS_Store

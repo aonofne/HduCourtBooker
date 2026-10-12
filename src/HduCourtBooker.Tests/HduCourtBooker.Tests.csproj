@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>HduCourtBooker.Tests</AssemblyName>
+    <RootNamespace>HduCourtBooker.Tests</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="..\HduCourtBooker\Api\ApiModels.cs" />
+    <Compile Include="..\HduCourtBooker\Core\*.cs" />
+    <!-- GymbookClient/TimeSync/BookingScheduler 依赖 HTTP，改由集成测试覆盖 -->
+    <Compile Remove="..\HduCourtBooker\Core\GymbookClient.cs" />
+    <Compile Remove="..\HduCourtBooker\Core\TimeSync.cs" />
+    <Compile Remove="..\HduCourtBooker\Core\BookingScheduler.cs" />
+  </ItemGroup>
+
+</Project>

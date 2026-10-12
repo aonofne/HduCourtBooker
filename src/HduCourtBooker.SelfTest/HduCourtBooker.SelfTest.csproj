@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- 需要 windows 目标才能编译 DPAPI(ProtectedData) 共用的 Core 代码 -->
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>HduCourtBooker.SelfTest</AssemblyName>
+    <RootNamespace>HduCourtBooker.SelfTest</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="..\HduCourtBooker\Api\*.cs" />
+    <Compile Include="..\HduCourtBooker\Core\*.cs" />
+    <!-- DPAPI 只被界面工程的配置保存使用，自检无需编译（避免额外 NuGet 依赖） -->
+    <Compile Remove="..\HduCourtBooker\Core\SecretProtector.cs" />
+  </ItemGroup>
+
+</Project>
