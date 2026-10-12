@@ -3,10 +3,6 @@
 面向杭州电子科技大学场馆预约系统（`https://sportmeta.hdu.edu.cn/book/dingtalk/`）的 Windows 桌面工具。
 可预先设定**场地**与**时间段**偏好，在每天 **20:00** 预约开放的瞬间自动完成"后天"场地的预约。
 
-> 已还原并实测的真实接口：`choose_venue` / `post_venue_info` / `post_site_situation` /
-> `creat_book_info` / `creat_order` / `post_server_time`，场地为「综合馆羽毛球」共 12 片，
-> 每天可预约 T+0 ~ T+2（即 20:00 开放后天的场地）。
-
 ---
 
 
