@@ -17,7 +17,7 @@ dotnet --list-runtimes | Select-String WindowsDesktop
 ## 一、快速开始
 
 1. 打开**钉钉**，从工作台进入一次「场馆预约」页面（进入即可，不用预约）
-2. 双击 `publish-lite\HduCourtBooker.exe`
+2. 双击 `HduCourtBooker.exe`
 3. 点「★ 从钉钉自动获取」→ 自动填入 token 与 openid，并**自动开启每日自动预约**
 4. 确认状态栏显示 **● 自动预约已启用（下次 …）**
 5. 点「刷新场地图」确认能读到 12 片场地与可约时段（白色=可约，红色=已被约，灰色=未开放）
