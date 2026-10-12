@@ -5,9 +5,6 @@
 
 ---
 
-
-两个版本**共用同一份数据**（`%LOCALAPPDATA%\HduCourtBooker\`），配置与日志互通，随便换着用。
-
 检查是否已装 .NET 8 桌面运行时：
 
 ```powershell
