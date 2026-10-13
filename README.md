@@ -29,9 +29,7 @@ dotnet --list-runtimes | Select-String WindowsDesktop
 
 ### 数据放在哪
 
-所有数据都在 **`%LOCALAPPDATA%\HduCourtBooker\`**（`config.json` + `logs\`），
-不再写在程序目录，因此**不需要管理员权限**。首次运行会自动把旧的 `程序目录\data` 迁移过来。
-若该目录恰好不可写，程序会退回"exe 旁 data"或"我的文档"，启动日志第一行会写明用了哪个。
+启动日志第一行会写明用了哪个。
 
 ## 二、获取 token（已自动化，无需手动查找）
 
@@ -59,16 +57,7 @@ dotnet --list-runtimes | Select-String WindowsDesktop
   软件已改为自动枚举所有 `DingTalk*`，点「扫描来源」可看每个路径是否存在。
 - 前提：先在钉钉里打开过一次「场馆预约」页面，本地才会有这份数据。
 
-#### ② 软件自己的配置文件（上次成功获取的 token 会一直留着）
-
-```
-<软件目录>\data\config.json      →  "TokenProtected" 字段就是 token（明文）
-```
-
-- 换机器、重装软件但想沿用旧 token 时，直接改这个字段即可。
-- 另外 `data\logs\exchange-*.log` 记录每次请求的鉴权头（token 已脱敏，只能用于排查）。
-
-#### ③ 抓包（能拿到请求头即可）
+#### ② 抓包（能拿到请求头即可）
 
 用 Fiddler / Reqable 等工具让钉钉走代理，在任意 `/book/client/` 请求的请求头里找：
 
@@ -78,7 +67,7 @@ Authorization: Bearer eyJhbGciOi...
 
 `Bearer` 后面那一串（到行尾）就是 token。手机端同理：手机 WiFi 设置 HTTP 代理指向电脑并安装证书。
 
-#### ④ 从日志里捞
+#### ③ 从日志里捞
 
 在钉钉日志目录里搜 `eyJ`：`%APPDATA%\DingTalk\log\`、`%LOCALAPPDATA%\DingTalk_133\Default\Cache\`。
 找到多条时，**用 `exp` 字段最大（最晚过期）的那条**。
